@@ -1,0 +1,7 @@
+{
+    "version": 2,
+    "builds": [
+        { "src": "backend/main.cpp", "use": "@vercel/static-build" },
+        { "src": "frontend/**", "use": "@vercel/static-build" }
+    ]
+}
