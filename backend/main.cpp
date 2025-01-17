@@ -8,10 +8,10 @@
 
 using asio::ip::tcp;
 
-void handleRequest(tcp::socket& socket) {
+void handleRequest(std::shared_ptr<tcp::socket> socket) {
     try {
         asio::streambuf buffer;
-        asio::read_until(socket, buffer, "\n");
+        asio::read_until(*socket, buffer, "\n");
 
         std::istream input(&buffer);
         std::string stockSymbol;
@@ -20,7 +20,14 @@ void handleRequest(tcp::socket& socket) {
         StockAnalyser analyser;
         std::string result = analyser.analyzeStock(stockSymbol);
 
-        asio::write(socket, asio::buffer(result + "\n"));
+        // Add HTTP headers
+        std::ostringstream response;
+        response << "HTTP/1.1 200 OK\r\n";
+        response << "Content-Type: text/plain\r\n";
+        response << "Content-Length: " << result.size() + 1 << "\r\n\r\n";
+        response << result << "\n";
+
+        asio::write(*socket, asio::buffer(response.str()));
     } catch (std::exception& e) {
         std::cerr << "Error handling request: " << e.what() << std::endl;
     }
@@ -34,9 +41,9 @@ int main() {
         std::cout << "Server is running on http://localhost:8080" << std::endl;
 
         while (true) {
-            tcp::socket socket(ioContext);
-            acceptor.accept(socket);
-            std::thread(handleRequest, std::move(socket)).detach();
+            auto socket = std::make_shared<tcp::socket>(ioContext);
+            acceptor.accept(*socket);
+            std::thread([socket]() { handleRequest(socket); }).detach();
         }
     } catch (std::exception& e) {
         std::cerr << "Server error: " << e.what() << std::endl;

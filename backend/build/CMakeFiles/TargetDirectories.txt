@@ -1,0 +1,3 @@
+/Users/haozhen/Desktop/cpp-stock-analyser/backend/build/CMakeFiles/app.dir
+/Users/haozhen/Desktop/cpp-stock-analyser/backend/build/CMakeFiles/edit_cache.dir
+/Users/haozhen/Desktop/cpp-stock-analyser/backend/build/CMakeFiles/rebuild_cache.dir
